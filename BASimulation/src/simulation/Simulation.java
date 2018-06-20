@@ -52,15 +52,16 @@ public class Simulation {
 
 	public void run() {
 		System.out.println("Start of Simulation");
-		// spawnCars
-		createCars();
+		
 		// main loop
 		while (true) {
-
+			// spawnCars
+			createCars();
 			// carLogic
 			move();
 			globalTime++;
-
+			
+			printProgress(runtime,globalTime);
 			// end of simulation
 			if (globalTime >= runtime) {
 				System.out.println("End of Simulation");
@@ -68,6 +69,20 @@ public class Simulation {
 			}
 		}
 
+	}
+	
+	double currentProgress = 0;
+	
+	private void printProgress(int runtime2, int globalTime2) {
+		// every percent
+		double intervall = 1.0;
+		double current = ((globalTime2*1.0)/(runtime2*1.0))*100;
+		if(current - currentProgress > intervall)
+		{
+			currentProgress=current;
+			System.out.println("Progress :"+ (int)current+"% " + cars.size());
+		}
+		
 	}
 
 	private void move() {
@@ -112,11 +127,12 @@ public class Simulation {
 
 	private void updateCarList() {
 		cars.removeAll(carsRemove);
-		cars.clear();
+		carsRemove.clear();
 		
 	}
 
 	private void parkingTimeChecker(Car car) {
+		
 		if(globalTime-car.getParkingStart()>=car.getParkingDuration())
 		{
 			//write Metrics to List;
@@ -335,6 +351,11 @@ public class Simulation {
 	private int determineParkingDuration() {
 		
 		return SimHelper.getRandomNumberInRange(parkingDurationMin, parkingDurationMax);
+	}
+
+	public ArrayList<Metric> getMetrics() {
+		
+		return metrics;
 	}
 
 }

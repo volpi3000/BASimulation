@@ -9,6 +9,7 @@ import javax.naming.NameAlreadyBoundException;
 import main.Enums.oType;
 import manhattan.Manhattan;
 import navigation.Navigation;
+import simulation.Metric;
 import simulation.Simulation;
 
 public class Main {
@@ -16,11 +17,11 @@ public class Main {
 	static Manhattan matrix;
 
 	public static void setup() {
-		int entrances = 3;
-		int roadlenght = 3;
-		int spotsperroad = 2;
-		int carsPerSecond = 5;
-		int metersPerSecond = 5;
+		int entrances = 10;
+		int roadlenght = 100;
+		int spotsperroad = 30;
+		int carsPerSecond = 1;
+		int metersPerSecond = 2;
 		int totalRuntime = 86400; 
 		int parkingDurationMin = 1800;
 		int parkingDurationMax = 18000;
@@ -36,6 +37,11 @@ public class Main {
 		nav.preCache(matrix);
 		Simulation sim = new Simulation(matrix, nav, metersPerSecond, carsPerSecond, totalRuntime,parkingDurationMin,parkingDurationMax);
 		sim.run();
+		ArrayList<Metric> metrics = sim.getMetrics();
+		for(Metric item:metrics)
+		{
+			System.out.println(item.getDistanceTravelled());
+		}
 
 	}
 

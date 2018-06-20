@@ -19,6 +19,8 @@ public class Manhattan {
 	int roadlength;
 	int spotsperroad;
 	
+	boolean debug = false;
+	
 	
 	
 	ArrayList<MapObject> parkingspots = new ArrayList<MapObject>();
@@ -317,7 +319,7 @@ public class Manhattan {
 		{
 			if((x+1)%(roadlength+1) == 0 && x!=0 )
 			{
-				if(o) {System.out.println(x+ " " + y);}
+				if(debug) {System.out.println(x+ " " + y);}
 				return addEntrance(new Entrance(direction.NORTH,x,y,orientation.V ));
 			}
 			
@@ -326,7 +328,7 @@ public class Manhattan {
 		{
 			if((x+1)%(roadlength+1) == 0  && x!=0 )
 			{
-				if(o) {System.out.println(x+ " " + y);}
+				if(debug) {System.out.println(x+ " " + y);}
 				return addEntrance(new Entrance( direction.SOUTH,x,y,orientation.V) );
 			}
 			
@@ -336,7 +338,7 @@ public class Manhattan {
 		{
 			if((y+1)%(roadlength+1) == 0 && y!=0 )
 			{
-				if(o) {System.out.println(x+ " " + y);}
+				if(debug) {System.out.println(x+ " " + y);}
 				return addEntrance( new Entrance( direction.WEST,x,y,orientation.H ));
 			}
 			
@@ -345,7 +347,7 @@ public class Manhattan {
 		{
 			if((y+1)%(roadlength+1) == 0 && y!=0  )
 			{
-				if(o) {System.out.println(x+ " " + y);}
+				if(debug) {System.out.println(x+ " " + y);}
 				return addEntrance( new Entrance(direction.EAST,x,y,orientation.H ));
 			}
 			
@@ -420,7 +422,7 @@ public class Manhattan {
 				{
 				if(map[target.getX()+i][target.getY()].getType()==oType.INTERSECTION)
 				{
-					System.out.println("Foundclosest");
+					if(debug) {System.out.println("Foundclosest");}
 					return (Intersection) map[target.getX()+i][target.getY()];
 				}
 				}
@@ -428,7 +430,7 @@ public class Manhattan {
 				{
 				if(map[target.getX()-i][target.getY()].getType()==oType.INTERSECTION)
 				{
-					System.out.println("Foundclosest");
+					if(debug) {System.out.println("Foundclosest");}
 					return (Intersection) map[target.getX()-i][target.getY()];
 				}
 				}
@@ -456,7 +458,7 @@ public class Manhattan {
 				{
 				if(map[target.getX()][target.getY()+i].getType()==oType.INTERSECTION)
 				{
-					System.out.println("Foundclosest");
+					if(debug) {System.out.println("Foundclosest");}
 					return (Intersection) map[target.getX()][target.getY()+i];
 				}
 				}
@@ -464,14 +466,14 @@ public class Manhattan {
 				{
 				if(map[target.getX()][target.getY()-i].getType()==oType.INTERSECTION)
 				{
-					System.out.println("Foundclosest");
+					if(debug) {System.out.println("Foundclosest");}
 					return (Intersection) map[target.getX()][target.getY()-i];
 				}
 				}
 			}
 			
 		}
-		System.out.println("Intersection search error");
+		System.err.println("Intersection search error");
 		return null;
 	}
 

@@ -15,6 +15,7 @@ import manhattan.Entrance;
 import manhattan.Intersection;
 import manhattan.Manhattan;
 import manhattan.MapObject;
+import manhattan.Parkingspace;
 import manhattan.Street;
 import navigation.Navigation;
 import navigation.Vertex;
@@ -23,6 +24,8 @@ public class Simulation {
 
 	Manhattan matrix;
 	ArrayList<Car> cars = new ArrayList<Car>();
+	ArrayList<Car> carsRemove = new ArrayList<Car>();
+	ArrayList<Metric> metrics = new ArrayList<Metric>();
 	final Navigation nav;
 	final int runtime;
 
@@ -30,13 +33,20 @@ public class Simulation {
 
 	int metersPerSecond;
 	int carsPerSecond;
+	
+	final int parkingDurationMin; 
+	final int parkingDurationMax; 
+	
+	boolean debug = false;
 
-	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, int carsPerSecond, int runtime) {
+	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, int carsPerSecond, int runtime,int parkingDurationMin,int parkingDurationMax ) {
 		this.matrix = matrix;
 		this.nav = nav;
 		this.metersPerSecond = metersPerSecond;
 		this.carsPerSecond = carsPerSecond;
 		this.runtime = runtime;
+		this.parkingDurationMin=parkingDurationMin;
+		this.parkingDurationMax=parkingDurationMax;
 
 	}
 
@@ -63,6 +73,8 @@ public class Simulation {
 	private void move() {
 		// iterate through all cars and determine behaviour
 		for (int i = 0; i < metersPerSecond; i++) {
+			//remove cars
+			updateCarList();
 
 			for (Car car : cars) {
 				switch (car.state) {
@@ -73,7 +85,11 @@ public class Simulation {
 					naturalSearch(car);
 					break;
 				case PARKED:
-					// for now, do nothing --> check if parking Time is elapsed
+					parkingTimeChecker(car);
+					break;
+				case ENTERING:
+					break;
+				default:
 					break;
 
 				}
@@ -82,7 +98,8 @@ public class Simulation {
 				Coordinate movement = SimHelper.getDirectionStep(car.dir);
 				//System.out.println("Moving Car by: "+movement.toString());
 				car.getPosition().add(movement);
-				System.out.println("Moving Car to: "+car.getPosition().toString());
+				car.getData().distancePlusOne();
+				if(debug) {System.out.println("Moving Car to: "+car.getPosition().toString());}
 				
 				checkCarLoc(car);
 				}
@@ -93,17 +110,35 @@ public class Simulation {
 
 	}
 
+	private void updateCarList() {
+		cars.removeAll(carsRemove);
+		cars.clear();
+		
+	}
+
+	private void parkingTimeChecker(Car car) {
+		if(globalTime-car.getParkingStart()>=car.getParkingDuration())
+		{
+			//write Metrics to List;
+			metrics.add(car.getData());
+			//remove Car
+			carsRemove.add(car);
+			//free Parkingspace
+		}
+		
+	}
+
 	private void naturalSearch(Car car) {
 		MapObject loc = matrix.getMapObject(car.getPosition());
 		// first car drives to the next intersection
 		if (loc.getType() == oType.INTERSECTION) {
 			
-			System.out.println("Reached: " + car.getPosition().toString());
+			if(debug) {System.out.println("Reached: " + car.getPosition().toString());}
 			
 			if ((Intersection) loc == car.getSearchStart()) {
 				
 				if(!car.isIgnoreInit()) {				
-				System.out.println("Reached initial");
+					if(debug) {System.out.println("Reached initial");}
 				// origin is reached change direction
 				car.setDir(SimHelper.getLeftTurnDirection(car.getDir()));	
 				}
@@ -153,23 +188,60 @@ public class Simulation {
 			
 			MapObject check1 = matrix.map[co.getX()+x][co.getY()+y];
 			MapObject check2 = matrix.map[co.getX()-x][co.getY()-y];
+			Coordinate one = new Coordinate(co.getX()+x, co.getY()+y);
+			Coordinate two = new Coordinate(co.getX()-x, co.getY()-y);
+			boolean oneIsSpot = isParking(check1);
+			boolean twoIsSpot = isParking(check2);
+			boolean oneIsFree = isSpotFree(check1,oneIsSpot);
+			boolean twoIsFree = isSpotFree(check2,twoIsSpot);
 			
-			if(check1.getType()==oType.PARKINGSPOT)
-			{
+			if(oneIsFree)
+			{	
+				
+
+				((Parkingspace)check1).parkCar();
 				car.setState(status.PARKED);
-				System.out.println("Found parking spot!");
+				car.setParkingStart(globalTime);
+				car.setPosition(one);
+				if(debug) {System.out.println("Found parking spot!");}
 			}
 			else {
-			if(check2.getType()==oType.PARKINGSPOT)
-			{
+			if(twoIsFree)
+			{				
+				((Parkingspace)check2).parkCar();
 				car.setState(status.PARKED);
-				System.out.println("Found parking spot!");
+				car.setParkingStart(globalTime);
+				car.setPosition(two);
+				if(debug) {System.out.println("Found parking spot!");}
 			}
 			}
 			
 		}
 		
 
+	}
+
+	private boolean isParking(MapObject check1) {
+		if(check1.getType()==oType.PARKINGSPOT)
+		{return true;
+		}
+		
+		return false;
+	}
+
+	private boolean isSpotFree(MapObject check, boolean isSpot) {
+		
+		if(!isSpot)
+		{
+		return false;
+		}
+		
+		if(((Parkingspace)check).checkFree())
+		{
+			return true;
+		}
+		
+		return false;
 	}
 
 	private void navigateToTargetLocation(Car car) {
@@ -181,7 +253,7 @@ public class Simulation {
 			}
 			// überprüfen ob Ziel erreicht
 			if (car.path.size() == 1) {
-				System.out.println("Final Intersection reached, starting search");
+				if(debug) {System.out.println("Final Intersection reached, starting search");}
 				// setze direction in richtung ziel
 				car.setDir(nav.getNewDirection(car.getPosition(), car.target));
 				// Car behavior changes
@@ -189,16 +261,16 @@ public class Simulation {
 				// Remember where search started
 				car.setSearchStart((Intersection) loc);
 			} else {
-				System.out.println(
-						"Reached intersection: " + ((Intersection) loc).getX() + ":" + ((Intersection) loc).getY());
+				if(debug) {System.out.println(
+						"Reached intersection: " + ((Intersection) loc).getX() + ":" + ((Intersection) loc).getY());}
 				// remove reached location;
 				car.path.removeFirst();
 				car.setNextLoc(car.path.getFirst().getMapObject());
-				System.out.println(
-						"New Target Intersection is: " + car.getNextLoc().getX() + ":" + car.getNextLoc().getY());
+				if(debug) {System.out.println(
+						"New Target Intersection is: " + car.getNextLoc().getX() + ":" + car.getNextLoc().getY());}
 				// set up new travel direction
 				car.setDir(nav.getNewDirection(car.getPosition(), car.getNextLoc().getLoc()));
-				System.out.println("Direction of Travel is: " + car.getDir().name());
+				if(debug) {System.out.println("Direction of Travel is: " + car.getDir().name());}
 			}
 		}
 
@@ -206,7 +278,7 @@ public class Simulation {
 
 	private void createCars() {
 		// Here we should decide if a new car should spawn depending on settings
-
+		while(spawnCarInterval()) {
 		// select randaom entrance
 		Coordinate pos = SimHelper.selectEntrance(matrix);
 		// select random target
@@ -224,17 +296,35 @@ public class Simulation {
 		// get navigation instructions
 		LinkedList<Vertex> path = nav.getInstructions(currentTarget, matrix.getClosestIntersection(target));
 
-		System.out.println("Created Car at: " + pos.toString());
-		System.out.println("Target is: " + target.toString());
-		System.out.println("Starting Intersection is: " + currentTarget.getLoc().toString());
+		if(debug) {System.out.println("Created Car at: " + pos.toString());}
+		if(debug) {System.out.println("Target is: " + target.toString());}
+		if(debug) {System.out.println("Starting Intersection is: " + currentTarget.getLoc().toString());}
 
-		for (Vertex v : path) {
-			System.out.println("Path: " + v.getMapObject().getLoc().toString());
-		}
+		//for (Vertex v : path) {
+			//System.out.println("Path: " + v.getMapObject().getLoc().toString());
+	//	}
 
 		// add Car to List
 		cars.add(new Car(pos, search.NATURAL, target, parkingDuration, creationTime, state, dir, currentTarget, path));
+		}
 
+	}
+
+	int carsSpawned = 0;
+	private boolean spawnCarInterval() {
+		
+		if(carsSpawned!=carsPerSecond)
+		{
+			carsSpawned++;
+			return true;
+		}
+		else
+		{
+			carsSpawned=0;
+			return false;
+		}
+		
+	
 	}
 
 	private int getTime() {
@@ -243,8 +333,8 @@ public class Simulation {
 	}
 
 	private int determineParkingDuration() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return SimHelper.getRandomNumberInRange(parkingDurationMin, parkingDurationMax);
 	}
 
 }

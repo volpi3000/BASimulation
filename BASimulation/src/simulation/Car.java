@@ -15,7 +15,7 @@ public class Car {
 	final Coordinate target;
 	final search mode;
 	final int parkingDuration;
-	final int creationTime;
+	int parkingStart;
 	Intersection currentTarget;
 	status state;
 	direction dir;
@@ -23,6 +23,7 @@ public class Car {
 	LinkedList<Vertex> path;
 	Intersection searchStart;
 	boolean ignoreInit = true;
+	final Metric data;
 
 	public Car(Coordinate pos, search natural, Coordinate target, int parkingDuration, int creationTime, status state,
 			direction dir, Intersection currentTarget, LinkedList<Vertex> path) {
@@ -30,7 +31,7 @@ public class Car {
 		this.state = state;
 		this.mode = natural;
 		this.parkingDuration = parkingDuration;
-		this.creationTime = creationTime;
+		this.data = new Metric(creationTime,mode);
 		this.dir = dir;
 		this.currentTarget = currentTarget;
 		this.target = target;
@@ -39,6 +40,26 @@ public class Car {
 	}
 	
 	
+	public int getParkingDuration() {
+		return parkingDuration;
+	}
+
+
+	public int getParkingStart() {
+		return parkingStart;
+	}
+
+
+	public void setParkingStart(int parkingStart) {
+		this.parkingStart = parkingStart;
+	}
+
+
+	public Metric getData() {
+		return data;
+	}
+
+
 	public boolean isIgnoreInit() {
 		return ignoreInit;
 	}

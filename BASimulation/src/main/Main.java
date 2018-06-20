@@ -19,6 +19,11 @@ public class Main {
 		int entrances = 3;
 		int roadlenght = 3;
 		int spotsperroad = 2;
+		int carsPerSecond = 5;
+		int metersPerSecond = 5;
+		int totalRuntime = 86400; 
+		int parkingDurationMin = 1800;
+		int parkingDurationMax = 18000;
 
 		try {
 			matrix = new Manhattan(entrances, roadlenght, spotsperroad);
@@ -29,14 +34,14 @@ public class Main {
 
 		Navigation nav = new Navigation(matrix);
 		nav.preCache(matrix);
-		Simulation sim = new Simulation(matrix, nav, 1, 1, 100);
+		Simulation sim = new Simulation(matrix, nav, metersPerSecond, carsPerSecond, totalRuntime,parkingDurationMin,parkingDurationMax);
 		sim.run();
 
 	}
 
 	public static void main(String[] args) {
 		setup();
-		printMap();
+		//printMap();
 
 	}
 

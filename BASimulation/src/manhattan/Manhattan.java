@@ -23,7 +23,7 @@ public class Manhattan {
 	
 	
 	
-	ArrayList<MapObject> parkingspots = new ArrayList<MapObject>();
+	ArrayList<Parkingspace> parkingspots = new ArrayList<Parkingspace>();
 	ArrayList<Street[]> streets = new ArrayList<Street[]>();
 	ArrayList<Entrance> entranceList = new ArrayList<Entrance>();
 	ArrayList<Intersection> intersections = new ArrayList<Intersection>();  
@@ -64,13 +64,7 @@ public class Manhattan {
 		this.entrances = entrances;
 	}
 
-	public ArrayList<MapObject> getParkingspots() {
-		return parkingspots;
-	}
-
-	public void setParkingspots(ArrayList<MapObject> parkingspots) {
-		this.parkingspots = parkingspots;
-	}
+	
 
 	public ArrayList<Street[]> getStreets() {
 		return streets;
@@ -150,12 +144,16 @@ public class Manhattan {
 					
 					//auf überschneidung prüfen
 					if(map[x][y].getType()!=oType.PARKINGSPOT)
-					{					
-					map[x][y] = new Parkingspace(oType.PARKINGSPOT,false);
+					{
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT,false);
+						parkingspots.add(ps);
+					map[x][y] = ps;
 					}
 					else
 					{
-						map[x][y] = new Parkingspace(oType.PARKINGSPOT,true);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT,true);
+						parkingspots.add(ps);
+						map[x][y] = ps;
 					}
 					
 					
@@ -175,12 +173,16 @@ public class Manhattan {
 					}
 					//auf überschneidung prüfen
 					if(map[x][y].getType()!=oType.PARKINGSPOT)
-					{					
-					map[x][y] = new Parkingspace(oType.PARKINGSPOT,false);
+					{			
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT,false);
+						parkingspots.add(ps);
+					map[x][y] = ps;
 					}
 					else
 					{
-						map[x][y] = new Parkingspace(oType.PARKINGSPOT,true);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT,true);
+						parkingspots.add(ps);
+						map[x][y] = ps;
 					}
 					
 				}
@@ -475,6 +477,21 @@ public class Manhattan {
 		}
 		System.err.println("Intersection search error");
 		return null;
+	}
+
+	public int getTotalSpots() {
+		int total = 0;
+		for(Parkingspace item:parkingspots)
+		{
+			total++;
+			//count double
+			if(item.isDoubled())
+			{
+				total++;
+			}
+		}
+		
+		return parkingspots.size();
 	}
 
 	

@@ -41,11 +41,11 @@ public class Simulation {
 	
 	final int parkingDurationMin; 
 	final int parkingDurationMax; 
-	final int spawnMultiplikator;
+	final double spawnMultiplikator;
 	
 	boolean debug = false;
 
-	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, Map<String, String> spawn,int spawnMultiplikator, int runtime,int parkingDurationMin,int parkingDurationMax) {
+	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, Map<String, String> spawn,double spawnMultiplikator, int runtime,int parkingDurationMin,int parkingDurationMax) {
 		this.matrix = matrix;
 		this.nav = nav;
 		this.metersPerSecond = metersPerSecond;
@@ -71,6 +71,7 @@ public class Simulation {
 			printProgress(runtime,globalTime);
 			// end of simulation
 			if (globalTime >= runtime) {
+				endSimulation();
 				System.out.println("End of Simulation");
 				break;
 			}
@@ -78,6 +79,17 @@ public class Simulation {
 
 	}
 	
+	private void endSimulation() {
+		//Making sure all Metrics are there
+		for(Car c:cars)
+		{
+			c.getData().setCarFailed(true);
+		}
+		carsRemove.addAll(cars);
+		updateCarList();
+		
+	}
+
 	double currentProgress = 0;
 	
 	private void printProgress(int runtime2, int globalTime2) {
@@ -121,9 +133,18 @@ public class Simulation {
 				//System.out.println("Moving Car by: "+movement.toString());
 				car.getPosition().add(movement);
 				car.getData().distancePlusOne();
-				if(debug) {System.out.println("Moving Car to: "+car.getPosition().toString());}
+				if(car.getState()==status.SEARCHING)
+				{
+					car.getData().distanceSearchingPlusOne();
+				}
 				
+				if(debug) {System.out.println("Moving Car to: "+car.getPosition().toString());}
+				//check for spot
 				checkCarLoc(car);
+				//remove car if car travelled maximum distance
+				checkDistance(car);
+				
+				
 				}
 
 			}
@@ -132,7 +153,24 @@ public class Simulation {
 
 	}
 
+	private void checkDistance(Car car) {
+		
+		if(car.getData().getDistanceSearchingTravelled()>= (matrix.getRoadlength()*16)+20)
+		{
+			car.getData().setCarFailed(true);
+			car.getData().setTravelEndTime(0);
+			carsRemove.add(car);
+		}
+		
+	}
+
 	private void updateCarList() {
+		
+		for(Car c : carsRemove)
+		{
+			//write Metrics to List;
+			metrics.add(c.getData());
+		}
 		cars.removeAll(carsRemove);
 		carsRemove.clear();
 		
@@ -142,8 +180,7 @@ public class Simulation {
 		
 		if(globalTime-car.getParkingStart()>=car.getParkingDuration())
 		{
-			//write Metrics to List;
-			metrics.add(car.getData());
+			
 			//remove Car
 			carsRemove.add(car);
 			//free Parkingspace
@@ -225,6 +262,7 @@ public class Simulation {
 				((Parkingspace)check1).parkCar();
 				car.setState(status.PARKED);
 				car.setParkingStart(globalTime);
+				car.getData().setTravelEndTime(globalTime);
 				car.setPosition(one);
 				if(debug) {System.out.println("Found parking spot!");}
 			}
@@ -234,6 +272,7 @@ public class Simulation {
 				((Parkingspace)check2).parkCar();
 				car.setState(status.PARKED);
 				car.setParkingStart(globalTime);
+				car.getData().setTravelEndTime(globalTime);
 				car.setPosition(two);
 				if(debug) {System.out.println("Found parking spot!");}
 			}

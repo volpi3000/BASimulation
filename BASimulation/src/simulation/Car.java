@@ -24,6 +24,8 @@ public class Car {
 	Intersection searchStart;
 	boolean ignoreInit = true;
 	final Metric data;
+	
+	
 
 	public Car(Coordinate pos, search natural, Coordinate target, int parkingDuration, int creationTime, status state,
 			direction dir, Intersection currentTarget, LinkedList<Vertex> path) {

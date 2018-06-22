@@ -18,14 +18,14 @@ public class Main {
 	static Manhattan matrix;
 
 	public static void setup() {
-		int entrances = 10;
-		int roadlenght = 100;
-		int spotsperroad = 30;
-		int spawnMultiplikator = 1;
-		int metersPerSecond = 2;
+		int entrances = 15;
+		int roadlenght = 300;
+		int spotsperroad = 10;
+		double spawnMultiplikator = 2.5;
+		int metersPerSecond = 6;
 		int totalRuntime = 86400; 
-		int parkingDurationMin = 1800;
-		int parkingDurationMax = 18000;
+		int parkingDurationMin = 1200;
+		int parkingDurationMax = 10800;
 
 		try {
 			matrix = new Manhattan(entrances, roadlenght, spotsperroad);
@@ -43,11 +43,56 @@ public class Main {
 		Simulation sim = new Simulation(matrix, nav, metersPerSecond, spawn,spawnMultiplikator, totalRuntime,parkingDurationMin,parkingDurationMax);
 		sim.run();
 		ArrayList<Metric> metrics = sim.getMetrics();
-		for(Metric item:metrics)
-		{
-			System.out.println(item.getDistanceTravelled());
+		
+		try {
+			CSVWriter.writeMetrics(metrics);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
+		printMetrics(metrics, matrix);
+
+	}
+
+	private static void printMetrics(ArrayList<Metric> metrics, Manhattan matrix) {
+		int totalCars = 0;
+		int measuredCars = 0;
+		int averageDistanceTraveled = 0;
+		int averageTravelTime = 0;
+		int averageParkingduration = 0;
+		int carsFailed = 0;
+		int totalParkingSpots = 0;
+		int totalAppUsers=0;
+		int appUsersbecameNormal=0;
+		int totalSpots = matrix.getTotalSpots();
+		
+		for(Metric m: metrics)
+		{
+			totalCars++;
+			
+			if(m.isCarFailed())
+			{
+				carsFailed++;
+			}
+			else
+			{
+				averageDistanceTraveled += m.getDistanceTravelled();
+				averageTravelTime +=(m.getTravelEndTime()-m.getCreationTime());
+				measuredCars++;
+			}
+			
+		}
+		
+		double avgDT= (averageDistanceTraveled*1.0)/(measuredCars*1.0);
+		double avgTT= (averageTravelTime*1.0)/(measuredCars*1.0);
+		System.out.println("Metrics:");
+		System.out.println("Total Cars created: "+ totalCars);
+		System.out.println("Total Cars failed: " + carsFailed);
+		System.out.println("Toal Parkingspots: "+ totalSpots);
+		System.out.println("Average Distance Travelled: "+ avgDT);
+		System.out.println("Average Time Travelled: "+ avgTT);
+		
 	}
 
 	public static void main(String[] args) {

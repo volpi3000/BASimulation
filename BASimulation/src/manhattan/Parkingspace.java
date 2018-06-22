@@ -23,6 +23,15 @@ public class Parkingspace implements MapObject{
 			capacity=1;
 		}
 	}
+	
+	public boolean isDoubled() {
+		return doubled;
+	}
+
+	public void setDoubled(boolean doubled) {
+		this.doubled = doubled;
+	}
+
 	@Override
 	public oType getType() {
 		// TODO Auto-generated method stub

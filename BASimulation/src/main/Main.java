@@ -3,6 +3,7 @@ package main;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.naming.NameAlreadyBoundException;
 
@@ -20,7 +21,7 @@ public class Main {
 		int entrances = 10;
 		int roadlenght = 100;
 		int spotsperroad = 30;
-		int carsPerSecond = 1;
+		int spawnMultiplikator = 1;
 		int metersPerSecond = 2;
 		int totalRuntime = 86400; 
 		int parkingDurationMin = 1800;
@@ -32,10 +33,14 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
+		//read CSV
+		Map<String, String> spawn = CSVReader.readMap();
+		
 		Navigation nav = new Navigation(matrix);
 		nav.preCache(matrix);
-		Simulation sim = new Simulation(matrix, nav, metersPerSecond, carsPerSecond, totalRuntime,parkingDurationMin,parkingDurationMax);
+		Simulation sim = new Simulation(matrix, nav, metersPerSecond, spawn,spawnMultiplikator, totalRuntime,parkingDurationMin,parkingDurationMax);
 		sim.run();
 		ArrayList<Metric> metrics = sim.getMetrics();
 		for(Metric item:metrics)

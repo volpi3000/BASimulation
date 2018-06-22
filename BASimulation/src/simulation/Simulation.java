@@ -2,7 +2,9 @@ package simulation;
 
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
 
 import main.Coordinate;
@@ -26,27 +28,32 @@ public class Simulation {
 	ArrayList<Car> cars = new ArrayList<Car>();
 	ArrayList<Car> carsRemove = new ArrayList<Car>();
 	ArrayList<Metric> metrics = new ArrayList<Metric>();
+	
+	final Map<String, String> spawn;
+	
 	final Navigation nav;
 	final int runtime;
 
-	int globalTime = 0;
+	int globalTime = 1;
 
 	int metersPerSecond;
-	int carsPerSecond;
+	//int carsPerSecond;
 	
 	final int parkingDurationMin; 
 	final int parkingDurationMax; 
+	final int spawnMultiplikator;
 	
 	boolean debug = false;
 
-	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, int carsPerSecond, int runtime,int parkingDurationMin,int parkingDurationMax ) {
+	public Simulation(Manhattan matrix, Navigation nav, int metersPerSecond, Map<String, String> spawn,int spawnMultiplikator, int runtime,int parkingDurationMin,int parkingDurationMax) {
 		this.matrix = matrix;
 		this.nav = nav;
 		this.metersPerSecond = metersPerSecond;
-		this.carsPerSecond = carsPerSecond;
+		this.spawn = spawn;
 		this.runtime = runtime;
 		this.parkingDurationMin=parkingDurationMin;
 		this.parkingDurationMax=parkingDurationMax;
+		this.spawnMultiplikator = spawnMultiplikator;
 
 	}
 
@@ -295,6 +302,8 @@ public class Simulation {
 	private void createCars() {
 		// Here we should decide if a new car should spawn depending on settings
 		while(spawnCarInterval()) {
+			
+		
 		// select randaom entrance
 		Coordinate pos = SimHelper.selectEntrance(matrix);
 		// select random target
@@ -326,20 +335,26 @@ public class Simulation {
 
 	}
 
-	int carsSpawned = 0;
+	double carsSpawned = 0;
 	private boolean spawnCarInterval() {
 		
-		if(carsSpawned!=carsPerSecond)
+		String test = spawn.get(""+globalTime);
+		
+		if(test==null)
 		{
-			carsSpawned++;
-			return true;
-		}
-		else
-		{
-			carsSpawned=0;
-			return false;
+			System.err.println("Couldn't find current Second: "+globalTime);
 		}
 		
+		double amount = Double.parseDouble(test);
+		carsSpawned += (amount/3600) * spawnMultiplikator;
+		if(carsSpawned>1)
+		{	
+			carsSpawned -=1;
+			return true;
+		}
+			
+		
+		return false;
 	
 	}
 

@@ -28,6 +28,7 @@ public class Simulation {
 	ArrayList<Car> cars = new ArrayList<Car>();
 	ArrayList<Car> carsRemove = new ArrayList<Car>();
 	ArrayList<Metric> metrics = new ArrayList<Metric>();
+	ArrayList<SpotMetric> spotMetrics = new ArrayList<SpotMetric>();
 	
 	final Map<String, String> spawn;
 	
@@ -66,6 +67,9 @@ public class Simulation {
 			createCars();
 			// carLogic
 			move();
+			//collectMetrics
+			collectMetrics();
+			
 			globalTime++;
 			
 			printProgress(runtime,globalTime);
@@ -77,6 +81,14 @@ public class Simulation {
 			}
 		}
 
+	}
+	
+	private void collectMetrics() {
+		int totalAvailable = 0;
+		
+		totalAvailable=matrix.getAvailableSpots();
+		spotMetrics.add(new SpotMetric(globalTime, totalAvailable, 0));
+		
 	}
 	
 	private void endSimulation() {
@@ -184,6 +196,9 @@ public class Simulation {
 			//remove Car
 			carsRemove.add(car);
 			//free Parkingspace
+			Parkingspace current =(Parkingspace) matrix.getMapObject(car.getPosition());
+			
+			current.removeCar();
 		}
 		
 	}
@@ -410,6 +425,11 @@ public class Simulation {
 	public ArrayList<Metric> getMetrics() {
 		
 		return metrics;
+	}
+
+	public ArrayList<SpotMetric> getSpotMetrics() {
+		// TODO Auto-generated method stub
+		return spotMetrics;
 	}
 
 }

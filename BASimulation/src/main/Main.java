@@ -18,22 +18,23 @@ public class Main {
 	static Manhattan matrix;
 
 	public static void setup() {
-		int entrances = 15;
+		int entrances = 10;
 		int roadlenght = 300;
-		int spotsperroad = 10;
-		double spawnMultiplikator = 2.5;
+		int spotsperroad = 25;
+		double spawnMultiplikator = 4.0;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400; 
 		int parkingDurationMin = 1200;
 		int parkingDurationMax = 10800;
-
+		
+		System.out.println("Creating Map ...");
 		try {
 			matrix = new Manhattan(entrances, roadlenght, spotsperroad);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		System.out.println("Map Created");
 
 		//read CSV
 		Map<String, String> spawn = CSVReader.readMap();
@@ -51,7 +52,14 @@ public class Main {
 			e.printStackTrace();
 		}
 
+		try {
+			CSVWriter.writeSpotMetrics(sim.getSpotMetrics());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		printMetrics(metrics, matrix);
+		
 
 	}
 

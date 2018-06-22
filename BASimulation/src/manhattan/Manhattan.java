@@ -491,7 +491,23 @@ public class Manhattan {
 			}
 		}
 		
-		return parkingspots.size();
+		return total;
+	}
+
+	public int getAvailableSpots() {
+		
+		int total = 0;
+		for(Parkingspace item:parkingspots)
+		{
+			
+			if(item.free)
+			{
+				total++;
+			}
+		}
+		
+		return total;
+		
 	}
 
 	

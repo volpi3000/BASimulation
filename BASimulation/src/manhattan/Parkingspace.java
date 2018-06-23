@@ -10,10 +10,12 @@ public class Parkingspace implements MapObject{
 	int capacity = 0;
 	int in = 0;
 	boolean free = true;;
+	final boolean app;
 	
-	public Parkingspace(oType type, boolean doubled) {
+	public Parkingspace(oType type, boolean doubled, boolean app) {
 		this.type = type;
 		this.doubled = doubled;
+		this.app=app;
 		if(doubled)
 		{
 			capacity=2;
@@ -24,6 +26,10 @@ public class Parkingspace implements MapObject{
 		}
 	}
 	
+	public boolean isApp() {
+		return app;
+	}
+
 	public boolean isDoubled() {
 		return doubled;
 	}

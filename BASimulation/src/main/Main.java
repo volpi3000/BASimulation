@@ -20,31 +20,34 @@ public class Main {
 	public static void setup() {
 		int entrances = 10;
 		int roadlenght = 300;
-		int spotsperroad = 25;
+		int spotsperroad = 15;
 		double spawnMultiplikator = 4.0;
 		int metersPerSecond = 6;
-		int totalRuntime = 86400; 
+		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
 		int parkingDurationMax = 10800;
-		
+		double percentAppUser = 10.00;
+		double percentAppParkingSpots = 10.00;
+
 		System.out.println("Creating Map ...");
 		try {
-			matrix = new Manhattan(entrances, roadlenght, spotsperroad);
+			matrix = new Manhattan(entrances, roadlenght, spotsperroad, percentAppParkingSpots);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Map Created");
 
-		//read CSV
+		// read CSV
 		Map<String, String> spawn = CSVReader.readMap();
-		
+
 		Navigation nav = new Navigation(matrix);
 		nav.preCache(matrix);
-		Simulation sim = new Simulation(matrix, nav, metersPerSecond, spawn,spawnMultiplikator, totalRuntime,parkingDurationMin,parkingDurationMax);
+		Simulation sim = new Simulation(matrix, nav, metersPerSecond, spawn, spawnMultiplikator, totalRuntime,
+				parkingDurationMin, parkingDurationMax, percentAppUser);
 		sim.run();
 		ArrayList<Metric> metrics = sim.getMetrics();
-		
+
 		try {
 			CSVWriter.writeMetrics(metrics);
 		} catch (Exception e) {
@@ -59,7 +62,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		printMetrics(metrics, matrix);
-		
 
 	}
 
@@ -70,42 +72,40 @@ public class Main {
 		int averageTravelTime = 0;
 		int averageParkingduration = 0;
 		int carsFailed = 0;
-		int totalParkingSpots = 0;
-		int totalAppUsers=0;
-		int appUsersbecameNormal=0;
+		int totalAppSpots = matrix.getTotalAppSpots();
+		int totalAppUsers = 0;
+		int appUsersbecameNormal = 0;
 		int totalSpots = matrix.getTotalSpots();
-		
-		for(Metric m: metrics)
-		{
+
+		for (Metric m : metrics) {
 			totalCars++;
-			
-			if(m.isCarFailed())
-			{
+
+			if (m.isCarFailed()) {
 				carsFailed++;
-			}
-			else
-			{
+			} else {
 				averageDistanceTraveled += m.getDistanceTravelled();
-				averageTravelTime +=(m.getTravelEndTime()-m.getCreationTime());
+				averageTravelTime += (m.getTravelEndTime() - m.getCreationTime());
 				measuredCars++;
 			}
-			
+
 		}
-		
-		double avgDT= (averageDistanceTraveled*1.0)/(measuredCars*1.0);
-		double avgTT= (averageTravelTime*1.0)/(measuredCars*1.0);
+
+		double avgDT = (averageDistanceTraveled * 1.0) / (measuredCars * 1.0);
+		double avgTT = (averageTravelTime * 1.0) / (measuredCars * 1.0);
 		System.out.println("Metrics:");
-		System.out.println("Total Cars created: "+ totalCars);
+		System.out.println("Total Cars created: " + totalCars);
 		System.out.println("Total Cars failed: " + carsFailed);
-		System.out.println("Toal Parkingspots: "+ totalSpots);
-		System.out.println("Average Distance Travelled: "+ avgDT);
-		System.out.println("Average Time Travelled: "+ avgTT);
-		
+		System.out.println("Total Parkingspots: " + totalSpots);
+		System.out.println("Total App Parkingapots: " + totalAppSpots);
+		System.out.println("Total Normal Parkingsspots: " + (totalSpots-totalAppSpots));
+		System.out.println("Average Distance Travelled: " + avgDT);
+		System.out.println("Average Time Travelled: " + avgTT);
+
 	}
 
 	public static void main(String[] args) {
 		setup();
-		//printMap();
+		// printMap();
 
 	}
 

@@ -30,6 +30,7 @@ public class Simulation
 	ArrayList<Car> carsRemove = new ArrayList<Car>();
 	ArrayList<Metric> metrics = new ArrayList<Metric>();
 	ArrayList<SpotMetric> spotMetrics = new ArrayList<SpotMetric>();
+	Map<String, String> appParking = new HashMap<String, String>();
 
 	final Map<String, String> spawn;
 
@@ -60,7 +61,7 @@ public class Simulation
 		this.parkingDurationMin = parkingDurationMin;
 		this.parkingDurationMax = parkingDurationMax;
 		this.spawnMultiplikator = spawnMultiplikator;
-		this.appUsers=percentAppUser;
+		this.appUsers = percentAppUser;
 	}
 
 	public void run()
@@ -76,6 +77,8 @@ public class Simulation
 			move();
 			// collectMetrics
 			collectMetrics();
+			//checkAppParking
+			checkAppParking();
 
 			globalTime++;
 
@@ -91,12 +94,30 @@ public class Simulation
 
 	}
 
+	private void checkAppParking()
+	{
+		String x = null;
+		x=appParking.get(globalTime+"");
+		
+		while(x!=null)
+		{
+			Parkingspace psa = (Parkingspace) matrix.getMapObject(new Coordinate(x));
+			psa.removeCar();
+			appParking.remove(globalTime+"");
+			x=appParking.get(globalTime+"");
+			
+		}
+		
+		
+	}
+
 	private void collectMetrics()
 	{
 		int totalAvailable = 0;
 
 		totalAvailable = matrix.getAvailableSpots();
-		spotMetrics.add(new SpotMetric(globalTime, totalAvailable, 0));
+		int totalFreeApp = matrix.getAvailableAppSpots();
+		spotMetrics.add(new SpotMetric(globalTime, totalAvailable, totalFreeApp));
 
 	}
 
@@ -419,45 +440,140 @@ public class Simulation
 		// Here we should decide if a new car should spawn depending on settings
 		while (spawnCarInterval())
 		{
+			// decide if the car created is an app user or not
+			boolean natural = isNatural();
 
-			// select randaom entrance
-			Coordinate pos = SimHelper.selectEntrance(matrix);
-			// select random target
-			Coordinate target = SimHelper.selectTarget(matrix);
-			// select random parkingDuration
-			int parkingDuration = determineParkingDuration();
-			// getTime
-			int creationTime = getTime();
-			// setStatus
-			status state = status.ONROUTE;
-			// set Start direction
-			direction dir = SimHelper.getEnteringDirection(pos, matrix);
-			// set first target
-			Intersection currentTarget = SimHelper.getFirstIntersection(pos, dir, matrix);
-			// get navigation instructions
-			LinkedList<Vertex> path = nav.getInstructions(currentTarget, matrix.getClosestIntersection(target));
-
-			if (debug)
+			if (natural)
 			{
-				System.out.println("Created Car at: " + pos.toString());
-			}
-			if (debug)
+				createNormalCarInstance();
+			} else
 			{
-				System.out.println("Target is: " + target.toString());
+				createAppCarInstance();
 			}
-			if (debug)
-			{
-				System.out.println("Starting Intersection is: " + currentTarget.getLoc().toString());
-			}
-
-			// for (Vertex v : path) {
-			// System.out.println("Path: " + v.getMapObject().getLoc().toString());
-			// }
-
-			// add Car to List
-			cars.add(new Car(pos, search.NATURAL, target, parkingDuration, creationTime, state, dir, currentTarget,
-					path));
 		}
+
+	}
+
+	private void createAppCarInstance()
+	{
+		// select randaom entrance
+		Coordinate pos = SimHelper.selectEntrance(matrix);
+		// select random target
+		Coordinate target = SimHelper.selectTarget(matrix);
+		// select random parkingDuration	
+		int parkingDuration = determineParkingDuration();
+		// getTime
+		int creationTime = getTime();
+		// setStatus
+		status state = status.ONROUTE;
+		// set Start direction
+		direction dir = SimHelper.getEnteringDirection(pos, matrix);
+		//Check if Parking spot is in range
+		Parkingspace res =  matrix.getAppinRange(target);
+		// set first target
+		Intersection currentTarget = SimHelper.getFirstIntersection(pos, dir, matrix);
+		// get navigation instructions
+		Intersection in = matrix.getClosestIntersection(target);
+		LinkedList<Vertex> path = nav.getInstructions(currentTarget, in);
+		
+		//check res for null
+		
+		if(res!=null)
+		{
+		//block Parking spot for some time
+		res.parkCar();
+		//addtime 
+		appParking.put(globalTime+parkingDuration+"", res.getLoc().toString());		
+		//Add Metrics		
+		int totalMeters = path.size()*(matrix.getRoadlength()+1);
+		//add distance from last intersection to spot
+		Coordinate d = path.getLast().getMapObject().getLoc().difference(in.getLoc());
+		int xD =Math.abs(d.getX());
+		int yD =Math.abs(d.getY());
+		int dist = 0;
+				
+		//add Meters to parking spot
+		totalMeters+=xD+yD;
+		
+		Metric appCar = new Metric(creationTime, search.APP,false); 
+		appCar.setDistanceTravelled(totalMeters);
+		appCar.setTravelEndTime(globalTime+getTravelTimefromMeters(totalMeters));
+		appCar.setCarFailed(false);
+		appCar.setTimeExit(globalTime+getTravelTimefromMeters(totalMeters)+parkingDuration); 
+		appCar.setDistanceSearchingTravelled(xD+yD); // auch nicht war easy zu berrechnen
+		
+		metrics.add(appCar);
+		//System.out.println("APP SPOT FOUND");
+		
+		}
+		else
+		{
+			//if no ParkingSpot is found create normal instance
+			
+			cars.add(new Car(pos, search.NATURAL, target, parkingDuration, creationTime, state, dir, currentTarget, path, true));
+			
+		}
+		
+		
+		
+	}
+
+	private int getTravelTimefromMeters(int totalMeters)
+	{
+		int time = (int) (((totalMeters*1.0)/(metersPerSecond*1.0))+0.5);
+		return time;
+	}
+
+	private boolean isNatural()
+	{
+		// decide by chance what type of car
+		int ran = SimHelper.getRandomNumberInRange(1, 1000);
+		if (ran <= (appUsers * 10))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private void createNormalCarInstance()
+	{
+		// select randaom entrance
+		Coordinate pos = SimHelper.selectEntrance(matrix);
+		// select random target
+		Coordinate target = SimHelper.selectTarget(matrix);
+		// select random parkingDuration
+		int parkingDuration = determineParkingDuration();
+		// getTime
+		int creationTime = getTime();
+		// setStatus
+		status state = status.ONROUTE;
+		// set Start direction
+		direction dir = SimHelper.getEnteringDirection(pos, matrix);
+		// set first target
+		Intersection currentTarget = SimHelper.getFirstIntersection(pos, dir, matrix);
+		// get navigation instructions
+		LinkedList<Vertex> path = nav.getInstructions(currentTarget, matrix.getClosestIntersection(target));
+
+		if (debug)
+		{
+			System.out.println("Created Car at: " + pos.toString());
+		}
+		if (debug)
+		{
+			System.out.println("Target is: " + target.toString());
+		}
+		if (debug)
+		{
+			System.out.println("Starting Intersection is: " + currentTarget.getLoc().toString());
+		}
+
+		// for (Vertex v : path) {
+		// System.out.println("Path: " + v.getMapObject().getLoc().toString());
+		// }
+
+		// add Car to List
+		cars.add(new Car(pos, search.NATURAL, target, parkingDuration, creationTime, state, dir, currentTarget, path));
 
 	}
 

@@ -84,7 +84,7 @@ public class Manhattan
 		return null;
 	}
 
-	public Manhattan(int entrances, int roadlenght, int spotsperroad, double percentAppParkingSpots) throws Exception
+	public Manhattan(int entrances, int roadlenght, int spotsperroad, int appParkingSpots) throws Exception
 	{
 		this.entrances = entrances;
 		this.roadlength = roadlenght;
@@ -111,17 +111,18 @@ public class Manhattan
 		// detect streets
 		detectStreets(map, roadlenght);
 		// addParking spots
-		addParkingSpots(roadlenght, spotsperroad, percentAppParkingSpots);
+		addParkingSpots(roadlenght, spotsperroad, appParkingSpots);
 
 	}
 
-	private void addParkingSpots(int roadlenght, int spotsperroad2, double percentAppParkingSpots)
+	private void addParkingSpots(int roadlenght, int spotsperroad2, int appParkingSpots)
 	{
 
 		// Alle Straßen haben hier selbe verteilung das kann hier aber geändert werden
 		int[] pos = getSpotPos(roadlenght, spotsperroad2);
-		int numberOfAppSpots = (int) (((spotsperroad2 * 1.0) / percentAppParkingSpots) + 0.5);
-		int[] posApp = getAppSpotPos(pos.length, numberOfAppSpots);
+		
+		
+		int[] posApp = getAppSpotPos(pos.length, appParkingSpots);
 
 		// Parkplätz einfügen
 		for (Street[] item : streets)
@@ -151,12 +152,12 @@ public class Manhattan
 					// auf überschneidung prüfen
 					if (map[x][y].getType() != oType.PARKINGSPOT)
 					{
-						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app,new Coordinate(x, y));
 						parkingspots.add(ps);
 						map[x][y] = ps;
 					} else
 					{
-						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, true, app);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, true, app,new Coordinate(x, y));
 						parkingspots.add(ps);
 						map[x][y] = ps;
 					}
@@ -176,12 +177,12 @@ public class Manhattan
 					// auf überschneidung prüfen
 					if (map[x][y].getType() != oType.PARKINGSPOT)
 					{
-						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app, new Coordinate(x, y));
 						parkingspots.add(ps);
 						map[x][y] = ps;
 					} else
 					{
-						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, true, app);
+						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, true, app,new Coordinate(x, y));
 						parkingspots.add(ps);
 						map[x][y] = ps;
 					}
@@ -576,6 +577,57 @@ public class Manhattan
 		for (Parkingspace item : parkingspots)
 		{
 			if (item.isApp())
+			{
+				total++;
+				// count double
+				if (item.isDoubled())
+				{
+					total++;
+				}
+			}
+		}
+
+		return total;
+	}
+
+	public Parkingspace getAppinRange(Coordinate target)
+	{
+		//check x and y absolut distance if < roadlengh
+		for(Parkingspace app:parkingspots)
+		{
+			if(!app.isApp())
+			{
+				
+			}
+			else
+			{
+				
+				//range check
+				int x = Math.abs(app.loc.getX() - target.getX());
+				int y = Math.abs(app.loc.getY() - target.getY());
+				
+				if(x <= roadlength+2&&y <= roadlength+2)
+				{
+					if(app.checkFree())
+					{
+					return app;
+					}
+				}
+				
+				
+			}
+			
+			
+		}
+		return null;
+	}
+
+	public int getAvailableAppSpots()
+	{
+		int total = 0;
+		for (Parkingspace item : parkingspots)
+		{
+			if (item.isApp()&&item.checkFree())
 			{
 				total++;
 				// count double

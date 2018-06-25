@@ -21,6 +21,11 @@ public class Coordinate {
 		this.x = x;
 		this.y = y;
 	}
+	public Coordinate(String c) {
+		String[] xy = c.split(":");
+		this.x = Integer.parseInt(xy[0]);
+		this.y = Integer.parseInt(xy[1]);
+	}
 	
 	public Coordinate difference(Coordinate a)
 	{

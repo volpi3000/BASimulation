@@ -1,5 +1,6 @@
 package manhattan;
 
+import main.Coordinate;
 import main.Enums;
 import main.Enums.oType;
 
@@ -11,11 +12,13 @@ public class Parkingspace implements MapObject{
 	int in = 0;
 	boolean free = true;;
 	final boolean app;
+	final Coordinate loc;
 	
-	public Parkingspace(oType type, boolean doubled, boolean app) {
+	public Parkingspace(oType type, boolean doubled, boolean app,Coordinate loc) {
 		this.type = type;
 		this.doubled = doubled;
 		this.app=app;
+		this.loc=loc;
 		if(doubled)
 		{
 			capacity=2;
@@ -28,6 +31,11 @@ public class Parkingspace implements MapObject{
 	
 	public boolean isApp() {
 		return app;
+	}
+	
+	public Coordinate getLoc()
+	{
+		return loc;
 	}
 
 	public boolean isDoubled() {

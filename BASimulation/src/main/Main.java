@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.naming.NameAlreadyBoundException;
 
 import main.Enums.oType;
+import main.Enums.search;
 import manhattan.Manhattan;
 import navigation.Navigation;
 import simulation.Metric;
@@ -20,18 +21,19 @@ public class Main {
 	public static void setup() {
 		int entrances = 10;
 		int roadlenght = 300;
-		int spotsperroad = 15;
+		int spotsperroad = 20;
+		int appParkingSpots = 2;
 		double spawnMultiplikator = 4.0;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
 		int parkingDurationMax = 10800;
-		double percentAppUser = 10.00;
-		double percentAppParkingSpots = 10.00;
+		double percentAppUser = 0.00;
+		
 
 		System.out.println("Creating Map ...");
 		try {
-			matrix = new Manhattan(entrances, roadlenght, spotsperroad, percentAppParkingSpots);
+			matrix = new Manhattan(entrances, roadlenght, spotsperroad, appParkingSpots);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,7 +75,7 @@ public class Main {
 		int averageParkingduration = 0;
 		int carsFailed = 0;
 		int totalAppSpots = matrix.getTotalAppSpots();
-		int totalAppUsers = 0;
+		int totalAppCars = 0;
 		int appUsersbecameNormal = 0;
 		int totalSpots = matrix.getTotalSpots();
 
@@ -86,6 +88,14 @@ public class Main {
 				averageDistanceTraveled += m.getDistanceTravelled();
 				averageTravelTime += (m.getTravelEndTime() - m.getCreationTime());
 				measuredCars++;
+				if(m.getMode()==search.APP)
+				{
+					totalAppCars++;
+				}
+				if(m.isFailedApp())
+				{
+					appUsersbecameNormal++;
+				}
 			}
 
 		}
@@ -94,7 +104,9 @@ public class Main {
 		double avgTT = (averageTravelTime * 1.0) / (measuredCars * 1.0);
 		System.out.println("Metrics:");
 		System.out.println("Total Cars created: " + totalCars);
+		System.out.println("Total AppCars created: " + totalAppCars);
 		System.out.println("Total Cars failed: " + carsFailed);
+		System.out.println("Total AppCars became normal: " + appUsersbecameNormal);
 		System.out.println("Total Parkingspots: " + totalSpots);
 		System.out.println("Total App Parkingapots: " + totalAppSpots);
 		System.out.println("Total Normal Parkingsspots: " + (totalSpots-totalAppSpots));

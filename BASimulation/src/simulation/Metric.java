@@ -11,14 +11,28 @@ public class Metric {
 	private final search mode;
 	private int timeExit;
 	private boolean carFailed = false;
+	private final boolean failedApp;
 	
 	
-	public Metric(int creationTime, search mode) {
+	public Metric(int creationTime, search mode, boolean failedApp) {
 		this.creationTime = creationTime;
 		this.mode = mode;
+		this.failedApp=failedApp;
 	}
 
 	
+	public search getMode()
+	{
+		return mode;
+	}
+
+
+	public boolean isFailedApp()
+	{
+		return failedApp;
+	}
+
+
 	public int getCreationTime() {
 		return creationTime;
 	}

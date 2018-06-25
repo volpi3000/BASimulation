@@ -9,7 +9,8 @@ import main.Enums.status;
 import manhattan.Intersection;
 import navigation.Vertex;
 
-public class Car {
+public class Car
+{
 
 	Coordinate position;
 	final Coordinate target;
@@ -24,95 +25,129 @@ public class Car {
 	Intersection searchStart;
 	boolean ignoreInit = true;
 	final Metric data;
-	
-	
+	boolean failedApp = false;
 
 	public Car(Coordinate pos, search natural, Coordinate target, int parkingDuration, int creationTime, status state,
-			direction dir, Intersection currentTarget, LinkedList<Vertex> path) {
+			direction dir, Intersection currentTarget, LinkedList<Vertex> path)
+	{
 		this.position = pos;
 		this.state = state;
 		this.mode = natural;
 		this.parkingDuration = parkingDuration;
-		this.data = new Metric(creationTime,mode);
+		this.data = new Metric(creationTime, mode,failedApp);
 		this.dir = dir;
 		this.currentTarget = currentTarget;
 		this.target = target;
 		this.path = path;
 
 	}
-	
-	
-	public int getParkingDuration() {
+
+	public Car(Coordinate pos, search natural, Coordinate target, int parkingDuration, int creationTime, status state,
+			direction dir, Intersection currentTarget, LinkedList<Vertex> path, boolean b)
+	{
+		this.position = pos;
+		this.state = state;
+		this.mode = natural;
+		this.parkingDuration = parkingDuration;
+		this.data = new Metric(creationTime, mode, true);
+		this.dir = dir;
+		this.currentTarget = currentTarget;
+		this.target = target;
+		this.path = path;
+		this.failedApp=b;
+	}
+
+	public boolean isNormal()
+	{
+		if (this.mode == search.NATURAL)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public int getParkingDuration()
+	{
 		return parkingDuration;
 	}
 
-
-	public int getParkingStart() {
+	public int getParkingStart()
+	{
 		return parkingStart;
 	}
 
-
-	public void setParkingStart(int parkingStart) {
+	public void setParkingStart(int parkingStart)
+	{
 		this.parkingStart = parkingStart;
 	}
 
-
-	public Metric getData() {
+	public Metric getData()
+	{
 		return data;
 	}
 
-
-	public boolean isIgnoreInit() {
+	public boolean isIgnoreInit()
+	{
 		return ignoreInit;
 	}
 
-
-	public void setIgnoreInit(boolean ignoreInit) {
+	public void setIgnoreInit(boolean ignoreInit)
+	{
 		this.ignoreInit = ignoreInit;
 	}
 
-
-	public Coordinate getPosition() {
+	public Coordinate getPosition()
+	{
 		return position;
 	}
 
-	public Intersection getSearchStart() {
+	public Intersection getSearchStart()
+	{
 		return searchStart;
 	}
 
-	public void setSearchStart(Intersection searchStart) {
+	public void setSearchStart(Intersection searchStart)
+	{
 		this.searchStart = searchStart;
 	}
 
-	public void setPosition(Coordinate position) {
+	public void setPosition(Coordinate position)
+	{
 		this.position = position;
 	}
 
-	public status getState() {
+	public status getState()
+	{
 		return state;
 	}
 
-	public void setState(status state) {
+	public void setState(status state)
+	{
 		this.state = state;
 	}
 
-	public direction getDir() {
+	public direction getDir()
+	{
 		return dir;
 	}
 
-	public void setDir(direction dir) {
+	public void setDir(direction dir)
+	{
 		this.dir = dir;
 	}
 
-	public Intersection getNextLoc() {
+	public Intersection getNextLoc()
+	{
 		return nextLoc;
 	}
 
-	public void setNextLoc(Intersection nextLoc) {
+	public void setNextLoc(Intersection nextLoc)
+	{
 		this.nextLoc = nextLoc;
 	}
 
-	public Coordinate getTarget() {
+	public Coordinate getTarget()
+	{
 		return target;
 	}
 

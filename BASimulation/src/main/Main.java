@@ -17,8 +17,10 @@ import simulation.Simulation;
 public class Main {
 
 	static Manhattan matrix;
+	
+	static Settings se = null;
 
-	public static void setup() {
+	public static ArrayList<Metric> setup() {
 		int entrances = 10;
 		int roadlenght = 300;
 		int spotsperroad = 20;
@@ -30,6 +32,7 @@ public class Main {
 		int parkingDurationMax = 10800;
 		double percentAppUser = 0.00;
 		
+		se = new Settings(entrances,roadlenght,spotsperroad,appParkingSpots,spawnMultiplikator,metersPerSecond,totalRuntime,parkingDurationMin,parkingDurationMax,percentAppUser);
 
 		System.out.println("Creating Map ...");
 		try {
@@ -50,21 +53,16 @@ public class Main {
 		sim.run();
 		ArrayList<Metric> metrics = sim.getMetrics();
 
-		try {
-			CSVWriter.writeMetrics(metrics);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 
 		try {
-			CSVWriter.writeSpotMetrics(sim.getSpotMetrics());
+			//CSVWriter.writeSpotMetrics(sim.getSpotMetrics());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		printMetrics(metrics, matrix);
-
+		return metrics;
 	}
 
 	private static void printMetrics(ArrayList<Metric> metrics, Manhattan matrix) {
@@ -116,7 +114,14 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		setup();
+		
+		int runs = 1;
+		ArrayList<Metric>[] metrics = new ArrayList[runs];
+		for(int i= 0; i<runs;i++)
+		{
+		metrics[i]=setup();
+		}
+		ExcelWriter.writeMetricsSheet(metrics,se);
 		// printMap();
 
 	}

@@ -24,13 +24,13 @@ public class Main {
 		int entrances = 10;
 		int roadlenght = 200;
 		int spotsperroad = 15;
-		int appParkingSpots = 15;
+		int appParkingSpots = 5;
 		double spawnMultiplikator = 6;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
 		int parkingDurationMax = 7200;
-		double percentAppUser = 100.00;
+		double percentAppUser = 33.00;
 		
 		se = new Settings(entrances,roadlenght,spotsperroad,appParkingSpots,spawnMultiplikator,metersPerSecond,totalRuntime,parkingDurationMin,parkingDurationMax,percentAppUser);
 

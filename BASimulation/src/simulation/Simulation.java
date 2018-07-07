@@ -287,14 +287,14 @@ public class Simulation
 
 	private void checkCarLoc(Car car)
 	{
-		// links und rechts nach parkplätzen schauen und parken , wenn auto im richtigen
+		// links und rechts nach parkplï¿½tzen schauen und parken , wenn auto im richtigen
 		// modus#
 
 		if (car.getState() == status.SEARCHING)
 		{
 			int x = 0;
 			int y = 0;
-			// Wenn in eingängen geparkt werden soll muss das hier eingefügt werden
+			// Wenn in eingï¿½ngen geparkt werden soll muss das hier eingefï¿½gt werden
 			if (matrix.getMapObject(car.getPosition()).getType() == oType.STREET)
 			{
 				Street on = ((Street) matrix.getMapObject(car.getPosition()));
@@ -396,7 +396,7 @@ public class Simulation
 			{
 				System.err.println("evil error in navigation");
 			}
-			// überprüfen ob Ziel erreicht
+			// ï¿½berprï¿½fen ob Ziel erreicht
 			if (car.path.size() == 1)
 			{
 				if (debug)
@@ -468,13 +468,14 @@ public class Simulation
 		status state = status.ONROUTE;
 		// set Start direction
 		direction dir = SimHelper.getEnteringDirection(pos, matrix);
-		//Check if Parking spot is in range
-		Parkingspace res =  matrix.getAppinRange(target);
+	
 		// set first target
 		Intersection currentTarget = SimHelper.getFirstIntersection(pos, dir, matrix);
 		// get navigation instructions
 		Intersection in = matrix.getClosestIntersection(target);
 		LinkedList<Vertex> path = nav.getInstructions(currentTarget, in);
+		//Check if Parking spot is in range
+		Parkingspace res =  matrix.getAppinRange(path.getLast().getMapObject().getLoc());
 		
 		//check res for null
 		
@@ -487,7 +488,7 @@ public class Simulation
 		//Add Metrics		
 		int totalMeters = path.size()*(matrix.getRoadlength()+1);
 		//add distance from last intersection to spot
-		Coordinate d = path.getLast().getMapObject().getLoc().difference(in.getLoc());
+		Coordinate d = path.getLast().getMapObject().getLoc().difference(res.getLoc());
 		int xD =Math.abs(d.getX());
 		int yD =Math.abs(d.getY());
 		int dist = 0;
@@ -500,7 +501,7 @@ public class Simulation
 		appCar.setTravelEndTime(globalTime+getTravelTimefromMeters(totalMeters));
 		appCar.setCarFailed(false);
 		appCar.setTimeExit(globalTime+getTravelTimefromMeters(totalMeters)+parkingDuration); 
-		appCar.setDistanceSearchingTravelled(xD+yD); // auch nicht war easy zu berrechnen
+		appCar.setDistanceSearchingTravelled(xD+yD); 
 		
 		metrics.add(appCar);
 		//System.out.println("APP SPOT FOUND");

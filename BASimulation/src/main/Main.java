@@ -24,13 +24,13 @@ public class Main {
 		int entrances = 10;
 		int roadlenght = 200;
 		int spotsperroad = 15;
-		int appParkingSpots = 0;
+		int appParkingSpots = 15;
 		double spawnMultiplikator = 6;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
 		int parkingDurationMax = 7200;
-		double percentAppUser = 0.00;
+		double percentAppUser = 100.00;
 		
 		se = new Settings(entrances,roadlenght,spotsperroad,appParkingSpots,spawnMultiplikator,metersPerSecond,totalRuntime,parkingDurationMin,parkingDurationMax,percentAppUser);
 
@@ -78,6 +78,7 @@ public class Main {
 		int totalAppCars = 0;
 		int appUsersbecameNormal = 0;
 		int totalSpots = matrix.getTotalSpots();
+		int averageSearchDistance = 0;
 		int sD = 0;
 
 		for (Metric m : metrics) {
@@ -88,6 +89,7 @@ public class Main {
 			} else {
 				averageDistanceTraveled += m.getDistanceTravelled();
 				averageTravelTime += (m.getTravelEndTime() - m.getCreationTime());
+				averageSearchDistance+=m.getDistanceSearchingTravelled();
 				measuredCars++;
 				if(sD<m.getDistanceSearchingTravelled())
 				{
@@ -100,6 +102,7 @@ public class Main {
 				if(m.isFailedApp())
 				{
 					appUsersbecameNormal++;
+					totalAppCars++;
 				}
 			}
 
@@ -107,6 +110,7 @@ public class Main {
 
 		double avgDT = (averageDistanceTraveled * 1.0) / (measuredCars * 1.0);
 		double avgTT = (averageTravelTime * 1.0) / (measuredCars * 1.0);
+		double avgSD = (averageSearchDistance *1.0)/(measuredCars * 1.0);
 		out += ("Metrics:"+"\n");
 		out +=("Total Cars created: " + totalCars+"\n");
 		out +=("Total AppCars created: " + totalAppCars+"\n");
@@ -116,6 +120,7 @@ public class Main {
 		out +=("Total App Parkingapots: " + totalAppSpots+"\n");
 		out +=("Total Normal Parkingsspots: " + (totalSpots-totalAppSpots)+"\n");
 		out +=("Average Distance Travelled: " + avgDT+"\n");
+		out +=("Average Search Distance Travelled: " + avgSD+"\n");
 		out +=("Average Time Travelled: " + avgTT+"\n");
 		out +=("Highest Search distance: " + sD+"\n");
 		return out;

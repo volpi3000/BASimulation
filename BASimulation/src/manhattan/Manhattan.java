@@ -3,6 +3,7 @@ package manhattan;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -118,13 +119,13 @@ public class Manhattan
 	private void addParkingSpots(int roadlenght, int spotsperroad2, int appParkingSpots)
 	{
 
-		// Alle Straßen haben hier selbe verteilung das kann hier aber geändert werden
+		// Alle Straï¿½en haben hier selbe verteilung das kann hier aber geï¿½ndert werden
 		int[] pos = getSpotPos(roadlenght, spotsperroad2);
 		
 		
 		int[] posApp = getAppSpotPos(pos.length, appParkingSpots);
 
-		// Parkplätz einfügen
+		// Parkplï¿½tz einfï¿½gen
 		for (Street[] item : streets)
 		{
 			int counter = 0;
@@ -149,7 +150,7 @@ public class Manhattan
 						x -= 1;
 					}
 
-					// auf überschneidung prüfen
+					// auf ï¿½berschneidung prï¿½fen
 					if (map[x][y].getType() != oType.PARKINGSPOT)
 					{
 						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app,new Coordinate(x, y));
@@ -174,7 +175,7 @@ public class Manhattan
 					{
 						x += 1;
 					}
-					// auf überschneidung prüfen
+					// auf ï¿½berschneidung prï¿½fen
 					if (map[x][y].getType() != oType.PARKINGSPOT)
 					{
 						Parkingspace ps = new Parkingspace(oType.PARKINGSPOT, false, app, new Coordinate(x, y));
@@ -239,7 +240,14 @@ public class Manhattan
 
 		if (max < spotsperroad2)
 		{
-			throw new IllegalArgumentException("Can't ask for more numbers than are available");
+			//this comes into play if all spots are app spots
+			
+			int[] out = new int[spotsperroad2];
+			for(int i=0;i<out.length;i++)
+			{
+				out[i]=i;
+			}
+			return out;
 		}
 		Random rng = new Random(); // Ideally just create one instance globally
 		// Note: use LinkedHashSet to maintain insertion order
@@ -592,6 +600,8 @@ public class Manhattan
 
 	public Parkingspace getAppinRange(Coordinate target)
 	{
+		List<Parkingspace> avail = new ArrayList<Parkingspace>();
+		
 		//check x and y absolut distance if < roadlengh
 		for(Parkingspace app:parkingspots)
 		{
@@ -610,7 +620,7 @@ public class Manhattan
 				{
 					if(app.checkFree())
 					{
-					return app;
+					avail.add(app);
 					}
 				}
 				
@@ -619,7 +629,41 @@ public class Manhattan
 			
 			
 		}
-		return null;
+		
+		//check if there is available spot
+		if(avail.size()==0)
+		{
+			return null;
+		}
+		//determine closest spot
+		Parkingspace temp = avail.get(0);
+		
+		Coordinate d = target.difference(temp.getLoc());
+		int xD =Math.abs(d.getX());
+		int yD =Math.abs(d.getY());
+		
+		int dis = yD+xD;
+		
+		for(Parkingspace item:avail)
+		{
+			d = target.difference(item.getLoc());
+			xD =Math.abs(d.getX());
+			yD =Math.abs(d.getY());
+			
+			if(xD+yD < dis)
+			{
+				dis=xD+yD;
+				temp=item;
+			}
+			
+		}
+		
+		return temp;
+		
+		
+		
+		
+		
 	}
 
 	public int getAvailableAppSpots()

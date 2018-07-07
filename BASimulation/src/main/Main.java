@@ -22,14 +22,14 @@ public class Main {
 
 	public static ArrayList<Metric> setup() {
 		int entrances = 10;
-		int roadlenght = 300;
-		int spotsperroad = 20;
-		int appParkingSpots = 2;
-		double spawnMultiplikator = 4.0;
+		int roadlenght = 200;
+		int spotsperroad = 15;
+		int appParkingSpots = 0;
+		double spawnMultiplikator = 6;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
-		int parkingDurationMax = 10800;
+		int parkingDurationMax = 7200;
 		double percentAppUser = 0.00;
 		
 		se = new Settings(entrances,roadlenght,spotsperroad,appParkingSpots,spawnMultiplikator,metersPerSecond,totalRuntime,parkingDurationMin,parkingDurationMax,percentAppUser);
@@ -61,11 +61,13 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		printMetrics(metrics, matrix);
+		
 		return metrics;
 	}
 
-	private static void printMetrics(ArrayList<Metric> metrics, Manhattan matrix) {
+	private static String printMetrics(ArrayList<Metric> metrics) {
+		
+		String out ="";
 		int totalCars = 0;
 		int measuredCars = 0;
 		int averageDistanceTraveled = 0;
@@ -76,16 +78,21 @@ public class Main {
 		int totalAppCars = 0;
 		int appUsersbecameNormal = 0;
 		int totalSpots = matrix.getTotalSpots();
+		int sD = 0;
 
 		for (Metric m : metrics) {
 			totalCars++;
-
+			
 			if (m.isCarFailed()) {
 				carsFailed++;
 			} else {
 				averageDistanceTraveled += m.getDistanceTravelled();
 				averageTravelTime += (m.getTravelEndTime() - m.getCreationTime());
 				measuredCars++;
+				if(sD<m.getDistanceSearchingTravelled())
+				{
+					sD=m.getDistanceSearchingTravelled();
+				}
 				if(m.getMode()==search.APP)
 				{
 					totalAppCars++;
@@ -100,28 +107,32 @@ public class Main {
 
 		double avgDT = (averageDistanceTraveled * 1.0) / (measuredCars * 1.0);
 		double avgTT = (averageTravelTime * 1.0) / (measuredCars * 1.0);
-		System.out.println("Metrics:");
-		System.out.println("Total Cars created: " + totalCars);
-		System.out.println("Total AppCars created: " + totalAppCars);
-		System.out.println("Total Cars failed: " + carsFailed);
-		System.out.println("Total AppCars became normal: " + appUsersbecameNormal);
-		System.out.println("Total Parkingspots: " + totalSpots);
-		System.out.println("Total App Parkingapots: " + totalAppSpots);
-		System.out.println("Total Normal Parkingsspots: " + (totalSpots-totalAppSpots));
-		System.out.println("Average Distance Travelled: " + avgDT);
-		System.out.println("Average Time Travelled: " + avgTT);
-
+		out += ("Metrics:"+"\n");
+		out +=("Total Cars created: " + totalCars+"\n");
+		out +=("Total AppCars created: " + totalAppCars+"\n");
+		out +=("Total Cars failed: " + carsFailed+"\n");
+		out +=("Total AppCars became normal: " + appUsersbecameNormal+"\n");
+		out +=("Total Parkingspots: " + totalSpots+"\n");
+		out +=("Total App Parkingapots: " + totalAppSpots+"\n");
+		out +=("Total Normal Parkingsspots: " + (totalSpots-totalAppSpots)+"\n");
+		out +=("Average Distance Travelled: " + avgDT+"\n");
+		out +=("Average Time Travelled: " + avgTT+"\n");
+		out +=("Highest Search distance: " + sD+"\n");
+		return out;
 	}
 
 	public static void main(String[] args) {
 		
 		int runs = 1;
 		ArrayList<Metric>[] metrics = new ArrayList[runs];
+		String[] extra = new String[runs];
 		for(int i= 0; i<runs;i++)
 		{
 		metrics[i]=setup();
+		extra[i]=printMetrics(metrics[i]);
+		System.out.println(extra[i]);
 		}
-		ExcelWriter.writeMetricsSheet(metrics,se);
+		//ExcelWriter.writeMetricsSheet(metrics,se,extra);
 		// printMap();
 
 	}

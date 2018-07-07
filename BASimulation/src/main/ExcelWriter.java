@@ -10,12 +10,23 @@ import simulation.Metric;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ExcelWriter {
 
-	public static void writeMetricsSheet(ArrayList<Metric>[] metrics, Settings se) {
-		String filename = "LukasBachelorSimulation.xlsx";
+	public static void writeMetricsSheet(ArrayList<Metric>[] metrics, Settings se, String[] extra) {
+		
+		ZonedDateTime now = ZonedDateTime.now(); 
+		String pattern        = "yyyy-MM-dd-HH-mm-ss";
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+
+		String output = dtf.format(now);
+		
+		
+		String filename = "LukasBachelorSimulation-"+output+".xlsx";
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		// sheets
 		int counter = 0;
@@ -23,7 +34,7 @@ public class ExcelWriter {
 			counter++;
 			XSSFSheet sheet = workbook.createSheet("Run " + counter);
 			int cols = 6;
-			int rows = temp.size() + 1;
+			int rows = temp.size() + 2;
 			Object[][] datatypes = new Object[rows][cols];
 
 			datatypes[0] = new Object[] { "Creation Time", "Travel Endtime", "Search Distance", "Total Distance",
@@ -35,7 +46,8 @@ public class ExcelWriter {
 				r++;
 			}
 		
-
+			//add extra
+			datatypes[r] = new Object[] { "Info: ",extra[counter-1],"","","","" };
 	
 
 			int rowNum = 0;

@@ -74,14 +74,33 @@ public class SimHelper {
 	}
 	
 	public static Coordinate selectTarget(Manhattan matrix) {
-		int e = getRandomNumberInRange(1, matrix.getStreets().size());
-		Street[] y = matrix.getStreets().get(e-1);
+		//sicher stellen keine straﬂe mit eingang als ziel
+		Street[] y = null;
+		while(true)
+		{
+		int e = getRandomNumberInRange(1, matrix.getStreets().size());		
+		y = matrix.getStreets().get(e-1);
+		
+		int xT = y[0].getX();
+		int yT = y[0].getY();
+		int totalD = (matrix.getRoadlength() * (matrix.getEntrances() + 1)) + matrix.getEntrances();
+		
+		if(!(xT<matrix.getRoadlength()*1.5+1||xT>totalD-matrix.getRoadlength()*1.5+1))
+		{
+			if(!(yT<matrix.getRoadlength()*1.5+1||yT>totalD-matrix.getRoadlength()*1.5+1))
+			{
+				break;
+			}	
+		}
+		
+		}
+		
 		Street x = null;
 		while(true)
 		{
 		int i = getRandomNumberInRange(1, y.length);
 		x = y[i -1 ];
-		
+			
 		//Kein eingang als Ziel
 		if(x.getType()!=oType.ENTRANCE)
 		{

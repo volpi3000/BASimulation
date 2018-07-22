@@ -1,6 +1,8 @@
 package main;
 
 import java.io.FileWriter;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -28,8 +30,13 @@ public class CSVWriter {
 
     }
     public static void writeSpotMetrics(ArrayList<SpotMetric> spotMetrics) throws Exception {
+    	ZonedDateTime now = ZonedDateTime.now(); 
+		String pattern        = "yyyy-MM-dd-HH-mm-ss";
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
 
-        String csvFile = "SpotMetrics.csv";
+		String output = dtf.format(now);
+
+        String csvFile = "SpotMetrics-"+output+".csv";
         FileWriter writer = new FileWriter(csvFile);
         
         //Header

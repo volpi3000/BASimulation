@@ -21,16 +21,17 @@ public class Main {
 	static Settings se = null;
 
 	public static ArrayList<Metric> setup() {
+		//Simulation parameter settings
 		int entrances = 10;
 		int roadlenght = 200;
-		int spotsperroad = 15;
-		int appParkingSpots = 5;
-		double spawnMultiplikator = 6;
+		int spotsperroad = 20;
+		int appParkingSpots = 10;
+		double spawnMultiplikator = 4.5;
 		int metersPerSecond = 6;
 		int totalRuntime = 86400;
 		int parkingDurationMin = 1200;
-		int parkingDurationMax = 7200;
-		double percentAppUser = 33.00;
+		int parkingDurationMax = 18000;
+		double percentAppUser = 50.00;
 		
 		se = new Settings(entrances,roadlenght,spotsperroad,appParkingSpots,spawnMultiplikator,metersPerSecond,totalRuntime,parkingDurationMin,parkingDurationMax,percentAppUser);
 
@@ -43,7 +44,7 @@ public class Main {
 		}
 		System.out.println("Map Created");
 
-		// read CSV
+		// read CSV for spawn rate
 		Map<String, String> spawn = CSVReader.readMap();
 
 		Navigation nav = new Navigation(matrix);
@@ -56,7 +57,7 @@ public class Main {
 		
 
 		try {
-			//CSVWriter.writeSpotMetrics(sim.getSpotMetrics());
+			CSVWriter.writeSpotMetrics(sim.getSpotMetrics());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,7 +129,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		int runs = 1;
+		int runs = 10; // set the number of runs
 		ArrayList<Metric>[] metrics = new ArrayList[runs];
 		String[] extra = new String[runs];
 		for(int i= 0; i<runs;i++)
@@ -137,8 +138,8 @@ public class Main {
 		extra[i]=printMetrics(metrics[i]);
 		System.out.println(extra[i]);
 		}
-		//ExcelWriter.writeMetricsSheet(metrics,se,extra);
-		// printMap();
+		ExcelWriter.writeMetricsSheet(metrics,se,extra); //write metrics to excel file
+		// printMap(); 
 
 	}
 
